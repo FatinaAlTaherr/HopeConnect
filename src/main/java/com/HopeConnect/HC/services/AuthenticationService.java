@@ -7,6 +7,8 @@ import com.HopeConnect.HC.payload.authentication.RegisterPayload;
 import com.HopeConnect.HC.repositories.UserRepository;
 import com.HopeConnect.HC.response.AuthenticationResponse;
 import com.HopeConnect.HC.security.config.JwtService;
+
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
