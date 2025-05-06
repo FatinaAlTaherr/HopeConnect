@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-private UserRepository userRepository;
-private PasswordEncoder passwordEncoder;
-private  JwtService jwtService;
-private  AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
     public com.HopeConnect.HC.response.AuthenticationResponse register(RegisterPayload request) {
 
         var user= User.builder()

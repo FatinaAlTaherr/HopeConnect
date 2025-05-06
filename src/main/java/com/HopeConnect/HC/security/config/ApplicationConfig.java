@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-private UserRepository userRepository;
+    private final UserRepository userRepository;
 
 
     @Bean
