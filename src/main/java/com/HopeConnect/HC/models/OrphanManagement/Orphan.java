@@ -1,75 +1,60 @@
 package com.HopeConnect.HC.models.OrphanManagement;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Orphan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "orphan_id")
     private Long id;
 
-    private String name;
-    private int age;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "birth_date")
+    private Date birthDate;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(name = "education_status")
     private String educationStatus;
+
+    @Column(name = "health_condition", columnDefinition = "TEXT")
     private String healthCondition;
 
+    private String photo;
+
     @ManyToOne
-    @JoinColumn(name = "orphanage_id")
+    @JoinColumn(name = "orphanage_id", foreignKey = @ForeignKey(name = "fk_orphan_orphanage"))
     private Orphanage orphanage;
 
-    // Getters
-    public Long getId() {
-        return id;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public String getEducationStatus() {
-        return educationStatus;
-    }
-
-    public String getHealthCondition() {
-        return healthCondition;
-    }
-
-    public Orphanage getOrphanage() {
-        return orphanage;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public void setEducationStatus(String educationStatus) {
-        this.educationStatus = educationStatus;
-    }
-
-    public void setHealthCondition(String healthCondition) {
-        this.healthCondition = healthCondition;
-    }
-
-    public void setOrphanage(Orphanage orphanage) {
-        this.orphanage = orphanage;
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

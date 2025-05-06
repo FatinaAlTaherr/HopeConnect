@@ -1,11 +1,11 @@
 package com.HopeConnect.HC.services.OrphanManagementServices;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import com.HopeConnect.HC.models.OrphanManagement.Orphan;
 import com.HopeConnect.HC.models.OrphanManagement.Orphanage;
 import com.HopeConnect.HC.repositories.OrphanManagementRepositories.OrphanRepository;
 import com.HopeConnect.HC.repositories.OrphanManagementRepositories.OrphanageRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -44,10 +44,13 @@ public class OrphanageService {
 
     public Orphan updateOrphan(Long id, Orphan updatedOrphan) {
         return orphanRepository.findById(id).map(o -> {
-            o.setName(updatedOrphan.getName());
-            o.setAge(updatedOrphan.getAge());
+            o.setFullName(updatedOrphan.getFullName());
+            o.setBirthDate(updatedOrphan.getBirthDate());
+            o.setGender(updatedOrphan.getGender());
             o.setEducationStatus(updatedOrphan.getEducationStatus());
             o.setHealthCondition(updatedOrphan.getHealthCondition());
+            o.setPhoto(updatedOrphan.getPhoto());
+            o.setOrphanage(updatedOrphan.getOrphanage());
             return orphanRepository.save(o);
         }).orElse(null);
     }
