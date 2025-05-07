@@ -1,5 +1,6 @@
 package com.HopeConnect.HC.models.OrphanManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,7 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Entity
 @Data
 @NoArgsConstructor
@@ -42,5 +42,6 @@ public class Orphanage {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "orphanage", cascade = CascadeType.ALL)
+    @JsonIgnore // Prevents infinite loop by ignoring the orphans collection in the orphanage response
     private List<Orphan> orphans;
 }

@@ -1,11 +1,11 @@
 package com.HopeConnect.HC.models.OrphanManagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,6 +39,7 @@ public class Orphan {
 
     @ManyToOne
     @JoinColumn(name = "orphanage_id", foreignKey = @ForeignKey(name = "fk_orphan_orphanage"))
+    @JsonIgnore // This will prevent the orphanage from being serialized in the orphan response
     private Orphanage orphanage;
 
     @Column(name = "created_at", updatable = false)
