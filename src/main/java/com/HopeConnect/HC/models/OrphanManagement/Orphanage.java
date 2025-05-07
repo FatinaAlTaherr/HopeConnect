@@ -42,6 +42,6 @@ public class Orphanage {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "orphanage", cascade = CascadeType.ALL)
-    @JsonIgnore // Prevents infinite loop by ignoring the orphans collection in the orphanage response
+    @JsonIgnore 
     private List<Orphan> orphans;
 }
