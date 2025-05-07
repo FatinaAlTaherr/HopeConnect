@@ -39,7 +39,7 @@ public class Orphan {
 
     @ManyToOne
     @JoinColumn(name = "orphanage_id", foreignKey = @ForeignKey(name = "fk_orphan_orphanage"))
-    @JsonIgnore // This will prevent the orphanage from being serialized in the orphan response
+    @JsonIgnore
     private Orphanage orphanage;
 
     @Column(name = "created_at", updatable = false)

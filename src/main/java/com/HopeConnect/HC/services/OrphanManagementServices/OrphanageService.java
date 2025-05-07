@@ -51,8 +51,8 @@ public class OrphanageService {
     public Orphanage verifyOrphanage(Long id) {
         Orphanage orphanage = orphanageRepository.findById(id).orElse(null);
         if (orphanage != null) {
-            orphanage.setVerifiedStatus(true); // Set verified status to true
-            orphanageRepository.save(orphanage); // Save the updated orphanage
+            orphanage.setVerifiedStatus(true); 
+            orphanageRepository.save(orphanage); 
         }
         return orphanage;
     }
