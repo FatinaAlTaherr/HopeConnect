@@ -1,5 +1,7 @@
 package com.HopeConnect.HC.models.OrphanManagement;
 
+import com.HopeConnect.HC.models.Donation.Review;
+import com.HopeConnect.HC.models.User.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,6 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"owner", "reviews", "orphans"})
 @Builder
 public class Orphanage {
 
@@ -19,6 +22,15 @@ public class Orphanage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "orphanage_id")
     private Long id;
+
+    @OneToMany(mappedBy = "orphanage", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Review> reviews;
+
+
+    @OneToOne
+    @JoinColumn(name = "owner_email", referencedColumnName = "email", nullable = false)
+    private User owner;
 
     @Column(nullable = false)
     private String name;

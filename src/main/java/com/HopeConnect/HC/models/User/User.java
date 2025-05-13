@@ -1,9 +1,8 @@
 package com.HopeConnect.HC.models.User;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import com.HopeConnect.HC.models.OrphanManagement.Orphanage;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
@@ -15,13 +14,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import lombok.*;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "orphanage")
 @Entity
 public class User implements UserDetails {
+
+    @OneToOne(mappedBy = "owner")
+    @JsonIgnore
+    private Orphanage orphanage;
 
     @Id
     @NotBlank
@@ -38,6 +43,9 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
