@@ -57,8 +57,7 @@
 <strong>4. Transparency & Trust:</strong> Donor dashboards with spending reports, verified NGOs and orphanages, and a review system for accountability. <br>
 <strong>5. Emergency Relief Support:</strong> Dedicated system for responding to urgent crises with campaign updates, donation options, and email alerts. <br>
 <strong>6. Logistics & Distribution Tracking:</strong> Real-time mapping and coordination of donation deliveries and physical resources. <br>
-<strong>7. User Roles & Security:</strong> Role-based access control for admins, orphanages, donors, and volunteers with strong privacy protections and data security. <br>
-▶️ For more details on <strong>Core Features</strong> visit the <a href="https://github.com/Mohammad-Aker/GreenThumb/wiki">Wiki</a> section.
+▶️ For more details on <strong>Core Features</strong> visit the <a href="https://github.com/FatinaAlTaherr/HopeConnect/wiki">Wiki</a> section.
  <br>
  <br>
  <br>
