@@ -2,6 +2,8 @@ package com.HopeConnect.HC.services.OrphanManagementServices;
 
 import com.HopeConnect.HC.models.OrphanManagement.Orphan;
 import com.HopeConnect.HC.models.OrphanManagement.Orphanage;
+import com.HopeConnect.HC.models.User.Role;
+import com.HopeConnect.HC.models.User.User;
 import com.HopeConnect.HC.repositories.OrphanManagementRepositories.OrphanRepository;
 import com.HopeConnect.HC.repositories.OrphanManagementRepositories.OrphanageRepository;
 import com.HopeConnect.HC.services.EmailSenderService;
@@ -85,5 +87,19 @@ public class OrphanageService {
 
     public void deleteOrphan(Long id) {
         orphanRepository.deleteById(id);
+    }
+
+    public Orphanage getOrphanageByUser(User user) {
+        if (user.getRole() != Role.ORPHANAGE_OWNER) {
+            throw new IllegalStateException("Only orphanage owners can perform this action.");
+        }
+
+        return orphanageRepository.findByOwner(user)
+                .orElseThrow(() -> new IllegalArgumentException("No orphanage found for this user."));
+    }
+
+    public Orphanage getOrphanageByEmail(String email) {
+        return orphanageRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Orphanage not found"));
     }
 }

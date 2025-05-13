@@ -4,5 +4,6 @@ public enum Role {
     ADMIN,
     DONOR,
     VOLUNTEER,
-    SPONSOR
+    SPONSOR,
+    ORPHANAGE_OWNER
 }
