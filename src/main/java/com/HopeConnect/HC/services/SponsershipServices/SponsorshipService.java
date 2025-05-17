@@ -20,6 +20,15 @@ public class SponsorshipService {
     private final SponsorshipRepository sponsorshipRepo;
     private final UserRepository userRepo;
     private final OrphanRepository orphanRepo;
+
+    public void acceptSponsorship(Long sponsorshipId) {
+        Sponsorship sponsorship = sponsorshipRepo.findById(sponsorshipId)
+                .orElseThrow(() -> new RuntimeException("Sponsorship not found"));
+
+        sponsorship.setStatus(SponsorshipStatus.ACCEPTED);
+        sponsorshipRepo.save(sponsorship);
+    }
+
     public Sponsorship createSponsorship(SponsorshipRequest request) {
         User user = userRepo.findByEmail(request.getUserEmail())
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getUserEmail()));
@@ -32,7 +41,7 @@ public class SponsorshipService {
                 .orphan(orphan)
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .status(SponsorshipStatus.ACTIVE)
+                .status(SponsorshipStatus.PENDING)
                 .build();
 
         return sponsorshipRepo.save(sponsorship);

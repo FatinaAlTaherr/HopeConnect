@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,16 +27,34 @@ public class Orphan {
     @Column(name = "birth_date")
     private Date birthDate;
 
+    @Column(name = "age")
+    private Integer age;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @Column(name = "education_status")
     private String educationStatus;
 
+    @Column(name = "school_name")
+    private String school;
+
+    @Column(name = "school_grade")
+    private Integer grade;
+
+    @Column(name = "academic_performance")
+    private String performance;
+
     @Column(name = "health_condition", columnDefinition = "TEXT")
     private String healthCondition;
 
+    @Column(name = "last_donation_usage", columnDefinition = "TEXT")
+    private String lastDonationUsedFor;
+
     private String photo;
+
+    @Column(name = "recent_photo_url")
+    private String recentPhotoURL;
 
     @ManyToOne
     @JoinColumn(name = "orphanage_id", foreignKey = @ForeignKey(name = "fk_orphan_orphanage"))

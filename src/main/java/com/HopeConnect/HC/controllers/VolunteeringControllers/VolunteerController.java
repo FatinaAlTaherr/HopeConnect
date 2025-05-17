@@ -1,4 +1,5 @@
 package com.HopeConnect.HC.controllers.VolunteeringControllers;
+import com.HopeConnect.HC.DTO.ServiceRequestResponseDTO;
 import com.HopeConnect.HC.DTO.VolunteerRegistrationRequest;
 import com.HopeConnect.HC.DTO.VolunteerServiceRequestDTO;
 import com.HopeConnect.HC.models.User.User;
@@ -22,6 +23,19 @@ import java.util.stream.Collectors;
 public class VolunteerController {
     private final VolunteerService volunteerService;
 
+
+    @GetMapping("/nearby")
+    public List<ServiceRequestResponseDTO> getNearbyOpportunities(
+            @AuthenticationPrincipal User user,
+            @RequestParam int maxDistanceKm) {
+
+        Volunteer volunteer = volunteerService.getVolunteerByUser(user);
+        List<ServiceRequest> nearbyRequests = volunteerService.findNearbyOpportunities(volunteer, maxDistanceKm);
+
+        return nearbyRequests.stream()
+                .map(volunteerService::toDTO)
+                .collect(Collectors.toList());
+    }
     @PostMapping("/register")
     public Volunteer registerVolunteer(
             @AuthenticationPrincipal User user,

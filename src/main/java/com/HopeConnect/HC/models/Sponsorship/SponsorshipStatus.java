@@ -1,7 +1,8 @@
 package com.HopeConnect.HC.models.Sponsorship;
 
 public enum SponsorshipStatus {
-    ACTIVE,
+    PENDING,
+    ACCEPTED,
     COMPLETED,
     CANCELLED
 }

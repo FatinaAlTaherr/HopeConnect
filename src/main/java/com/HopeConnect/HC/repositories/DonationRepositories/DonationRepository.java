@@ -1,6 +1,7 @@
 package com.HopeConnect.HC.repositories.DonationRepositories;
 
 import com.HopeConnect.HC.models.Donation.Donation;
+import com.HopeConnect.HC.models.Donation.DonationCategory;
 import com.HopeConnect.HC.models.Donation.DonationStatus;
 import com.HopeConnect.HC.models.OrphanManagement.Orphanage;
 import com.HopeConnect.HC.models.User.User;

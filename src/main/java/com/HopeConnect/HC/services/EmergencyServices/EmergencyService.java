@@ -3,12 +3,16 @@ package com.HopeConnect.HC.services.EmergencyServices;
 import com.HopeConnect.HC.models.EmergencyCampaign.EmergencyCampaign;
 import com.HopeConnect.HC.models.EmergencyCampaign.EmergencyDonation;
 import com.HopeConnect.HC.models.OrphanManagement.Orphanage;
+import com.HopeConnect.HC.models.User.Role;
 import com.HopeConnect.HC.models.User.User;
 import com.HopeConnect.HC.repositories.EmergencyCampaignRepositories.EmergencyCampaignRepository;
 import com.HopeConnect.HC.repositories.EmergencyCampaignRepositories.EmergencyDonationRepository;
 import com.HopeConnect.HC.services.OrphanManagementServices.OrphanageService;
 import com.HopeConnect.HC.services.UserServices.UserService;
 import com.HopeConnect.HC.services.EmailSenderService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,26 +43,42 @@ public class EmergencyService {
         return campaignRepository.findByIsActiveTrueAndDeadlineAfter(LocalDateTime.now());
     }
 
-    // Donation methods
     public EmergencyDonation processDonation(Long campaignId, Double amount, User donor) {
         EmergencyCampaign campaign = campaignRepository.findById(campaignId)
-                .orElseThrow(() -> new EntityNotFoundException("Campaign not found"));
+                .orElseThrow(() -> new RuntimeException("Campaign not found"));
+
+        if (!campaign.isActive()) {
+            throw new RuntimeException("Campaign is no longer active");
+        }
+
+        // Update campaign amount
+        double updatedAmount = (campaign.getCurrentAmount() != null ? campaign.getCurrentAmount() : 0.0) + amount;
+        campaign.setCurrentAmount(updatedAmount);
+
+        // Optionally, deactivate if target met
+        if (updatedAmount >= campaign.getTargetAmount()) {
+            campaign.setActive(false);
+        }
+
+        campaignRepository.save(campaign); // Save updated campaign
 
         EmergencyDonation donation = EmergencyDonation.builder()
                 .donor(donor)
                 .campaign(campaign)
                 .amount(amount)
                 .donationDate(LocalDateTime.now())
+                // .paymentIntentId() – You can optionally set this from Stripe
                 .build();
 
-        // Update campaign amount
+        return donationRepository.save(donation);
+    }
+
+    public void handleSuccessfulDonation(Long campaignId, Double amount) {
+        EmergencyCampaign campaign = campaignRepository.findById(campaignId)
+                .orElseThrow(() -> new RuntimeException("Campaign not found"));
+
         campaign.setCurrentAmount(campaign.getCurrentAmount() + amount);
         campaignRepository.save(campaign);
-
-        // Send notification
-        sendDonationNotification(donor, campaign, amount);
-
-        return donationRepository.save(donation);
     }
 
     private void sendDonationNotification(User donor, EmergencyCampaign campaign, Double amount) {
@@ -76,8 +96,22 @@ public class EmergencyService {
     }
 
     public void sendEmergencyAlertToAllUsers(String subject, String message) {
-        List<User> allUsers = userService.getAllUsers();
-        allUsers.forEach(user -> emailSenderService.sendEmail(user.getEmail(), subject, message));
+        List<User> donorUsers = userService.getUsersByRole(Role.DONOR);
+        donorUsers.forEach(user -> emailSenderService.sendEmail(user.getEmail(), subject, message));
+    }
+
+    public PaymentIntent createPaymentIntent(Long campaignId, Double amount, User donor) throws StripeException, StripeException {
+        EmergencyCampaign campaign = campaignRepository.findById(campaignId)
+                .orElseThrow(() -> new EntityNotFoundException("Campaign not found"));
+
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setAmount((long) (amount * 100)) // amount in cents
+                .setCurrency("usd")
+                .setDescription("Donation for " + campaign.getTitle())
+                .setReceiptEmail(donor.getEmail())
+                .build();
+
+        return PaymentIntent.create(params);
     }
 
     @Scheduled(cron = "0 0 9 * * ?") // Runs daily at 9 AM
