@@ -37,7 +37,12 @@ public class Orphanage {
 
     @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
+    @Builder.Default
+    private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
+    @Column(length = 1000)
+    private String verificationNotes;
     private String location;
 
     @Column(name = "contact_number", length = 20)

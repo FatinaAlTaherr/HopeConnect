@@ -2,8 +2,8 @@ package com.HopeConnect.HC.models.Donation;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -21,7 +21,35 @@ public class DeliveryTracking {
 
     private String trackingNumber;
     private String carrier;
-    private String currentLocation;
+
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus status;
+
+    @ElementCollection
+    @CollectionTable(name = "delivery_checkpoints", joinColumns = @JoinColumn(name = "tracking_id"))
+    private List<DeliveryCheckpoint> checkpoints;
+
     private LocalDateTime estimatedDelivery;
     private LocalDateTime actualDelivery;
+    private String location;
+
+    @Embeddable
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DeliveryCheckpoint {
+        private String location;
+        private LocalDateTime timestamp;
+        private String status;
+    }
+
+    public enum DeliveryStatus {
+        PICKED_UP,
+        IN_TRANSIT,
+        AT_WAREHOUSE,
+        OUT_FOR_DELIVERY,
+        DELIVERED,
+        RETURNED
+    }
 }

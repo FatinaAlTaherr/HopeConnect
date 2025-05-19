@@ -30,7 +30,7 @@ public class SecurityConfiguration {
                                 "/HopeConnect/api/orphanages/verify/**",
                                 "/HopeConnect/api/emergency/alerts",  // added permitAll here
                                 "/HopeConnect/api/generate-report/**",
-                                "/emergency/success", // ✅ add this
+                                "/emergency/success/**", // ✅ add this
                                 "/stripe/webhook"
                         ).permitAll()
                         .anyRequest().authenticated()

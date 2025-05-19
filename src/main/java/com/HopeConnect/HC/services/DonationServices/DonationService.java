@@ -28,12 +28,23 @@ public class DonationService {
     private final PaymentService paymentService;
     private final EmailSenderService emailSenderService;
 
-    // Donation methods
+    private final FeeConfig feeConfig;
+
+
+
     public Donation createDonation(Donation donation) {
+        if (donation.getType() == DonationType.MONEY) {
+            // Calculate and set fees
+            double fee = calculateTransactionFee(donation.getAmount());
+            donation.setTransactionFee(fee);
+            donation.setNetAmount(donation.getAmount() - fee);
+        }
+
         Donation savedDonation = donationRepository.save(donation);
 
         if (donation.getType() == DonationType.MONEY) {
             try {
+                // Use the gross amount for payment intent
                 String clientSecret = paymentService.createPaymentIntent(donation);
                 savedDonation.setPaymentIntent(clientSecret);
                 donationRepository.save(savedDonation);
@@ -44,6 +55,12 @@ public class DonationService {
 
         sendDonationConfirmation(savedDonation);
         return savedDonation;
+    }
+
+    private double calculateTransactionFee(double amount) {
+        double calculatedFee = amount * (feeConfig.getTransactionFeePercentage() / 100);
+        calculatedFee = Math.max(calculatedFee, feeConfig.getMinimumFee());
+        return Math.min(calculatedFee, feeConfig.getMaximumFee());
     }
 
     public List<Donation> getDonationsByDonor(User donor) {
@@ -97,7 +114,7 @@ public class DonationService {
 
     public DeliveryTracking updateDeliveryTracking(Long id, String location) {
         return deliveryTrackingRepository.findById(id).map(tracking -> {
-            tracking.setCurrentLocation(location);
+            tracking.setLocation(location);
             return deliveryTrackingRepository.save(tracking);
         }).orElse(null);
     }
@@ -121,8 +138,14 @@ public class DonationService {
         String subject = "Donation Confirmation";
         String body = "Dear " + donation.getDonor().getUsername() + ",\n\n" +
                 "Thank you for your donation of " + donation.getAmount() +
-                " to " + donation.getOrphanage().getName() + ".\n" +
-                "Your donation will help us " + getCategoryImpact(donation.getCategory()) + ".\n\n" +
+                " to " + donation.getOrphanage().getName() + ".\n";
+
+        if (donation.getType() == DonationType.MONEY) {
+            body += "Transaction fee: " + donation.getTransactionFee() + "\n" +
+                    "Net amount received by orphanage: " + donation.getNetAmount() + "\n";
+        }
+
+        body += "Your donation will help us " + getCategoryImpact(donation.getCategory()) + ".\n\n" +
                 "You can track your donation status in your donor dashboard.\n\n" +
                 "Best regards,\n" +
                 "HopeConnect Team";
