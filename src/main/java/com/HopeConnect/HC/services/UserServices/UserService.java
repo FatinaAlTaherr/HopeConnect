@@ -43,9 +43,14 @@ public class UserService implements UserDetailsService {
         userRepository.deleteByEmail(email);
     }
 
+    public List<User> getUsersByRole(Role role) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole() == role)
+                .toList();
+    }
+
+
     public Orphanage getOrphanageById(Long orphanageId) {
-        // This would depend on your OrphanageService implementation
-        // For now, let's assume you have an orphanageRepository
         return orphanageRepository.findById(orphanageId)
                 .orElseThrow(() -> new RuntimeException("Orphanage not found"));
     }

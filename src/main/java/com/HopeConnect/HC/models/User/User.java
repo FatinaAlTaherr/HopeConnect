@@ -41,7 +41,10 @@ public class User implements UserDetails {
     @NotBlank
     private String phoneNumber;
 
+    private String location;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Role role;
 
 

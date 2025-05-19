@@ -4,6 +4,8 @@ import com.HopeConnect.HC.DTO.SponsorshipRequest;
 import com.HopeConnect.HC.models.Sponsorship.Sponsorship;
 import com.HopeConnect.HC.services.SponsershipServices.SponsorshipService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +17,16 @@ public class SponsorshipController {
 
     private final SponsorshipService sponsorshipService;
 
+    @PreAuthorize("hasRole('ORPHANAGE_OWNER')")
+    @PutMapping("/{id}/accept")
+    public void acceptSponsorship(@PathVariable Long id) {
+        sponsorshipService.acceptSponsorship(id);
+    }
+    @PreAuthorize("hasRole('SPONSOR')")
     @PostMapping
-    public Sponsorship create(@RequestBody SponsorshipRequest request) {
+    public Sponsorship create(@RequestBody SponsorshipRequest request, Authentication authentication) {
+        String userEmail = authentication.getName();
+        request.setUserEmail(userEmail);
         return sponsorshipService.createSponsorship(request);
     }
 
@@ -40,6 +50,8 @@ public class SponsorshipController {
         sponsorshipService.endSponsorship(id);
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteSponsorship(@PathVariable Long id) {
         sponsorshipService.deleteSponsorship(id);

@@ -20,4 +20,5 @@ public class ServiceRequestResponseDTO {
     private String location;
     private RequestStatus status;
     private boolean urgent;
+
 }

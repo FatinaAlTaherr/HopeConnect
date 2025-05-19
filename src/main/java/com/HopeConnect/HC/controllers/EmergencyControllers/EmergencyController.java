@@ -1,5 +1,9 @@
 package com.HopeConnect.HC.controllers.EmergencyControllers;
-
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import org.springframework.security.access.prepost.PreAuthorize;
+import com.HopeConnect.HC.DTO.EmergencyCampaignResponseDTO;
+import com.HopeConnect.HC.DTO.EmergencyDonationResponseDTO;
 import com.HopeConnect.HC.models.EmergencyCampaign.EmergencyCampaign;
 import com.HopeConnect.HC.models.EmergencyCampaign.EmergencyDonation;
 import com.HopeConnect.HC.models.User.User;
@@ -11,63 +15,88 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/HopeConnect/api/emergency")
 @RequiredArgsConstructor
 public class EmergencyController {
+
     private final EmergencyService emergencyService;
     private final UserService userService;
 
     // For orphanage owners to create campaigns
     @PostMapping("/campaigns")
-    public ResponseEntity<EmergencyCampaign> createCampaign(
+    public ResponseEntity<EmergencyCampaignResponseDTO> createCampaign(
             @RequestBody EmergencyCampaign campaign,
             @AuthenticationPrincipal UserDetails userDetails) {
+
         User user = userService.getUser(userDetails.getUsername());
-        return ResponseEntity.ok(emergencyService.createCampaign(campaign, user));
+        EmergencyCampaign created = emergencyService.createCampaign(campaign, user);
+        return ResponseEntity.ok(EmergencyCampaignResponseDTO.fromCampaign(created));
     }
 
     // Get all active campaigns
     @GetMapping("/campaigns")
-    public ResponseEntity<List<EmergencyCampaign>> getActiveCampaigns() {
-        return ResponseEntity.ok(emergencyService.getActiveCampaigns());
+    public ResponseEntity<List<EmergencyCampaignResponseDTO>> getActiveCampaigns() {
+        List<EmergencyCampaign> campaigns = emergencyService.getActiveCampaigns();
+        List<EmergencyCampaignResponseDTO> response = campaigns.stream()
+                .map(EmergencyCampaignResponseDTO::fromCampaign)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     // Make a donation
     @PostMapping("/campaigns/{campaignId}/donate")
-    public ResponseEntity<EmergencyDonation> makeDonation(
+    public ResponseEntity<EmergencyDonationResponseDTO> makeDonation(
             @PathVariable Long campaignId,
             @RequestParam Double amount,
             @AuthenticationPrincipal UserDetails userDetails) {
+
         User user = userService.getUser(userDetails.getUsername());
-        return ResponseEntity.ok(emergencyService.processDonation(campaignId, amount, user));
+        EmergencyDonation donation = emergencyService.processDonation(campaignId, amount, user);
+
+        EmergencyDonationResponseDTO response = EmergencyDonationResponseDTO.fromDonation(donation);
+        return ResponseEntity.ok(response);
     }
+
 
     // For orphanage owners to see their campaigns
     @GetMapping("/my-campaigns")
-    public ResponseEntity<List<EmergencyCampaign>> getOrphanageCampaigns(
+    public ResponseEntity<List<EmergencyCampaignResponseDTO>> getOrphanageCampaigns(
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUser(userDetails.getUsername());
-        return ResponseEntity.ok(emergencyService.getOrphanageCampaigns(user));
+        List<EmergencyCampaign> campaigns = emergencyService.getOrphanageCampaigns(user);
+        List<EmergencyCampaignResponseDTO> response = campaigns.stream()
+                .map(EmergencyCampaignResponseDTO::fromCampaign)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/alerts")
     public ResponseEntity<String> sendEmergencyAlert(
-            @RequestParam String subject,
-            @RequestParam String message,
+            @RequestBody Map<String, String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
+
+        String subject = payload.get("subject");
+        String message = payload.get("message");
+
+        if (subject == null || message == null) {
+            return ResponseEntity.badRequest().body("Subject and message are required");
+        }
 
         User sender = userService.getUser(userDetails.getUsername());
 
-        // Corrected string comparison
-        if (!"ADMIN".equals(sender.getRole())) {
-            return ResponseEntity.status(403).body("Access denied");
-        }
-
         emergencyService.sendEmergencyAlertToAllUsers(subject, message);
-        return ResponseEntity.ok("Emergency alert sent to all users.");
+        return ResponseEntity.ok("Emergency alert sent to donor users.");
+    }
+
+    @PostMapping("/campaigns/check-expired")
+    public ResponseEntity<String> manuallyCheckExpiredCampaigns() {
+        emergencyService.checkExpiredCampaigns();
+        return ResponseEntity.ok("Expired campaigns checked and processed.");
     }
 
 

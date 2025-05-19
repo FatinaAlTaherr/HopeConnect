@@ -29,6 +29,11 @@ public class Donation {
     @JoinColumn(name = "orphanage_id")
     private Orphanage orphanage;
 
+    @Column(name = "transaction_fee")
+    private Double transactionFee;
+
+    @Column(name = "net_amount")
+    private Double netAmount;
     @Enumerated(EnumType.STRING)
     private DonationType type;
 

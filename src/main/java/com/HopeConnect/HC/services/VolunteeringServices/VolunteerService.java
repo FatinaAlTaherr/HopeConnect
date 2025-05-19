@@ -1,5 +1,6 @@
 package com.HopeConnect.HC.services.VolunteeringServices;
 
+import com.HopeConnect.HC.DTO.ServiceRequestResponseDTO;
 import com.HopeConnect.HC.DTO.VolunteerServiceRequestDTO;
 import com.HopeConnect.HC.models.User.User;
 import com.HopeConnect.HC.models.OrphanManagement.Orphanage;
@@ -7,10 +8,13 @@ import com.HopeConnect.HC.models.Volunteering.*;
 import com.HopeConnect.HC.repositories.VolunteerngRepositories.ServiceRequestRepository;
 import com.HopeConnect.HC.repositories.VolunteerngRepositories.VolunteerApplicationRepository;
 import com.HopeConnect.HC.repositories.VolunteerngRepositories.VolunteerRepository;
+import com.HopeConnect.HC.services.ExternalAPI.GeocodingService;
+import com.HopeConnect.HC.utils.DistanceCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,7 +26,55 @@ public class VolunteerService {
     private final VolunteerRepository volunteerRepository;
     private final ServiceRequestRepository serviceRequestRepository;
     private final VolunteerApplicationRepository volunteerApplicationRepository;
+    private final GeocodingService geocodingService;
+    public ServiceRequestResponseDTO toDTO(ServiceRequest request) {
+        ServiceRequestResponseDTO dto = new ServiceRequestResponseDTO();
+        dto.setId(request.getId());
+        dto.setTitle(request.getTitle());
+        dto.setDescription(request.getDescription());
+        dto.setRequiredSkills(request.getRequiredSkills());
+        dto.setStartDateTime(request.getStartDateTime());
+        dto.setEndDateTime(request.getEndDateTime());
+        dto.setVolunteersNeeded(request.getVolunteersNeeded());
+        dto.setUrgent(request.isUrgent());
+        dto.setLocation(request.getLocation());
+        dto.setStatus(request.getStatus());
+        return dto;
+    }
+    public List<ServiceRequest> findNearbyOpportunities(Volunteer volunteer, int maxDistanceKm) {
+        System.out.println(volunteer.getLocation());
+        List<ServiceRequest> activeRequests = serviceRequestRepository.findByStatus(RequestStatus.ACTIVE);
 
+
+        try {
+            Map<String, Float> volunteerCoords = geocodingService.getGeocodingData(volunteer.getLocation());
+            System.out.println(volunteerCoords);
+
+            return activeRequests.stream()
+                    .filter(request -> {
+                        System.out.println(request.getLocation());
+                        try {
+                            System.out.println(request.getLocation());
+                            Map<String, Float> requestCoords = geocodingService.getGeocodingData(request.getLocation());
+                            double distance = DistanceCalculator.calculateDistance(
+                                    volunteerCoords.get("lat"),
+                                    volunteerCoords.get("lng"),
+                                    requestCoords.get("lat"),
+                                    requestCoords.get("lng")
+                            );
+                            return distance <= maxDistanceKm;
+                        } catch (IOException e) {
+                            return false;
+                        }
+                    })
+                    .sorted(Comparator.comparing(ServiceRequest::isUrgent).reversed()
+                            .thenComparing(ServiceRequest::getStartDateTime))
+                    .collect(Collectors.toList());
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to geocode volunteer location", e);
+        }
+    }
     public Volunteer registerVolunteer(User user, Set<VolunteerSkill> skills,
                                        Set<AvailabilityDay> availability,
                                        String qualifications, String experience,

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -30,11 +32,17 @@ public class Orphanage {
 
     @OneToOne
     @JoinColumn(name = "owner_email", referencedColumnName = "email", nullable = false)
+    @Fetch(FetchMode.JOIN)  // Add this
     private User owner;
 
     @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
+    @Builder.Default
+    private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
+    @Column(length = 1000)
+    private String verificationNotes;
     private String location;
 
     @Column(name = "contact_number", length = 20)

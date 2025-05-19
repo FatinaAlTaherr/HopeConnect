@@ -6,6 +6,7 @@ import com.HopeConnect.HC.models.User.Role;
 import com.HopeConnect.HC.models.User.User;
 import com.HopeConnect.HC.repositories.OrphanManagementRepositories.OrphanRepository;
 import com.HopeConnect.HC.repositories.OrphanManagementRepositories.OrphanageRepository;
+import com.HopeConnect.HC.repositories.UserRepository;
 import com.HopeConnect.HC.services.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,29 @@ public class OrphanageService {
 
     private final OrphanageRepository orphanageRepository;
     private final OrphanRepository orphanRepository;
+    private final UserRepository userRepository;
+
     private final EmailSenderService emailSenderService;
 
+
+    public Orphan saveOrphanForOwner(Orphan orphan, String ownerEmail) {
+        User owner = userRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Owner not found with email: " + ownerEmail));
+
+        Orphanage orphanage = orphanageRepository.findByOwner(owner)
+                .orElseThrow(() -> new IllegalArgumentException("No orphanage found for this owner"));
+
+        orphan.setOrphanage(orphanage);
+        return orphanRepository.save(orphan);
+    }
+
     // Orphanage Methods
-    public Orphanage saveOrphanage(Orphanage orphanage) {
+    public Orphanage saveOrphanageWithOwner(Orphanage orphanage, String ownerEmail) {
+        User fullOwner = userRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Owner not found with email: " + ownerEmail));
+
+        orphanage.setOwner(fullOwner);
+
         Orphanage savedOrphanage = orphanageRepository.save(orphanage);
 
         // Send email verification
@@ -35,6 +55,12 @@ public class OrphanageService {
         emailSenderService.sendEmail(savedOrphanage.getEmail(), subject, body);
 
         return savedOrphanage;
+    }
+
+    public List<Orphan> getOrphansByOrphanageId(Long orphanageId) {
+        Orphanage orphanage = orphanageRepository.findById(orphanageId)
+                .orElseThrow(() -> new IllegalArgumentException("Orphanage not found with id: " + orphanageId));
+        return orphanRepository.findByOrphanage(orphanage);
     }
 
     public void deleteOrphanage(Long id) {
