@@ -156,16 +156,15 @@ Make sure you have Maven installed. Run the following command to install the nec
 
 <a name="contact"></a>
 ## 💜 Contact
-<p align="right"> <a href="https://github.com/FatinaAlTaherr/HopeConnect/graphs/contributors"><img src="https://img.shields.io/github/contributors/FatinaAlTaherr/HopeConnect" alt="contributors" /></a> </p>
-<p align="center"><a href="https://github.com/FatinaAlTaherr/HopeConnect/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=FatinaAlTaherr/HopeConnect" />
-</a> </p>
-1. Fatina Al Taher - Fatina@gmail.com
-<p align="right">(<a href="#readme-top">⬆️ Back to top</a>)</p>
 
+**Feel free to reach out!**  
+🌟 I'm always happy to connect, collaborate, or answer any questions.
 
-<br>
-<br>
+**Email:** [Fatina@gmail.com](mailto:Fatina@gmail.com)
+
+**Follow me:**  
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/FatinaAlTaherr?tab=repositories)  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=LinkedIn&logoColor=white)](https://linkedin.com/in/testtttt)
 
 
 
