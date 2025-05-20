@@ -38,7 +38,6 @@ public class EmergencyController {
         return ResponseEntity.ok(EmergencyCampaignResponseDTO.fromCampaign(created));
     }
 
-    // Get all active campaigns
     @GetMapping("/campaigns")
     public ResponseEntity<List<EmergencyCampaignResponseDTO>> getActiveCampaigns() {
         List<EmergencyCampaign> campaigns = emergencyService.getActiveCampaigns();
@@ -48,7 +47,6 @@ public class EmergencyController {
         return ResponseEntity.ok(response);
     }
 
-    // Make a donation
     @PostMapping("/campaigns/{campaignId}/donate")
     public ResponseEntity<EmergencyDonationResponseDTO> makeDonation(
             @PathVariable Long campaignId,
