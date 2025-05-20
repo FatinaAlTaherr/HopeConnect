@@ -151,7 +151,9 @@ Make sure you have Maven installed. Run the following command to install the nec
  <a name="coref"></a>
 <br>
 <p align="right">(<a href="#readme-top">⬆️ Back to top</a>)</p>
+
 <a name="contact"></a>
+
 ## 💜 Contact
 
 **Feel free to reach out!**  
