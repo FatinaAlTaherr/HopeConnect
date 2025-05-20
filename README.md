@@ -158,9 +158,9 @@ Make sure you have Maven installed. Run the following command to install the nec
 
 **Feel free to reach out!**  
 🌟 I'm always happy to connect, collaborate, or answer any questions.
-
+<div align="right">
 **Email:** [Fatina@gmail.com](mailto:Fatina@gmail.com)
-
+</div>
 
 
 
