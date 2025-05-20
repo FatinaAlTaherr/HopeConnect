@@ -159,8 +159,9 @@ The API is documented using Postman.
 Access the documentation by navigating to [**API documentation**](https://documenter.getpostman.com/view/44572932/2sB2qXmieF) once the backend is operational.  
 This documentation covers all available endpoints, request parameters, response formats, and example requests and responses.
 
----
 <br>
+<br>
+
 <a name="contact"></a>
 
 ## 💜 Contact
