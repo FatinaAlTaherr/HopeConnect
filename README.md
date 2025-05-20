@@ -159,12 +159,14 @@ Make sure you have Maven installed. Run the following command to install the nec
 **Feel free to reach out!**  
 🌟 I'm always happy to connect, collaborate, or answer any questions.
 <div align="right">
+
 **Email:** [Fatina@gmail.com](mailto:Fatina@gmail.com)
+
 </div>
 
+<br>
 
-
-
+<br>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [Spring-boot]: https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white
