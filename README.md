@@ -160,7 +160,7 @@ Access the documentation by navigating to [**API documentation**](https://docume
 This documentation covers all available endpoints, request parameters, response formats, and example requests and responses.
 
 ---
-
+<br>
 <a name="contact"></a>
 
 ## 💜 Contact
