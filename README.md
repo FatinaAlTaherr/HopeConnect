@@ -160,7 +160,8 @@ Make sure you have Maven installed. Run the following command to install the nec
 🌟 I'm always happy to connect, collaborate, or answer any questions.
 <div align="right">
 
-**Email:** [Fatina@gmail.com](mailto:Fatina@gmail.com)
+**Email:** [fatinaaltaher68@gmail.com](mailto:fatinaaltaher68@gmail.com
+)
 
 </div>
 
