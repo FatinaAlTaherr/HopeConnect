@@ -161,9 +161,6 @@ This documentation covers all available endpoints, request parameters, response 
 
 ---
 
-<p align="right">(<a href="#readme-top">⬆️ Back to top</a>)</p>
-
-
 <a name="contact"></a>
 
 ## 💜 Contact
