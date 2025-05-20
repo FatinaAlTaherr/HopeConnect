@@ -96,6 +96,7 @@ Roles are actually like digital security guards. They check user IDs and say "ye
 ## 💜 Built With
 * [![SpringBoot][Spring-boot]][SpringURL] <br>An open-source Java framework for creating stand-alone, production-grade applications.
 * [![MySQL][MySQL]][MySQLURL] <br>A reliable, open-source relational database management system commonly used for storing and managing data in web applications.
+* [![Rabbit][Rabbit]][MySQLURL] <br>A message broker that enables asynchronous communication between services through messaging queues.
 * [![Docker][Docker]][DockerURL] <br>A platform for building, sharing, and running applications in containers.
 * [![Postman][Postman]][PostmanURL] <br>A collaboration platform for designing, testing, and documenting APIs.
 * [![Github][Github]][GithubURL] <br>A web-based platform for version control and collaboration using Git.
