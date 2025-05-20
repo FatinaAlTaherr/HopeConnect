@@ -47,7 +47,7 @@ public class Donation {
     @Enumerated(EnumType.STRING)
     private DonationStatus status;
 
-    // Add this new field for payment intent
+    @Column(length = 255) // Or longer if needed
     private String paymentIntent;
 
     @OneToMany(mappedBy = "donation", cascade = CascadeType.ALL)

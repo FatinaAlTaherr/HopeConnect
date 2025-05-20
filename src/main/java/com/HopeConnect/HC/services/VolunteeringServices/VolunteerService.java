@@ -113,7 +113,6 @@ public class VolunteerService {
 
         return serviceRequestRepository.save(request);
     }
-
     public List<ServiceRequest> findMatchingOpportunities(Volunteer volunteer, Optional<Integer> distance,
                                                           Optional<String> skills, Optional<String> availability, Optional<Boolean> urgency) {
         List<ServiceRequest> allActiveRequests = serviceRequestRepository.findByStatus(RequestStatus.ACTIVE);
@@ -126,16 +125,18 @@ public class VolunteerService {
         }
 
         // Apply skills filter if provided
-        if (skills.isPresent()) {
+        if (skills.isPresent() && !skills.get().isEmpty()) {
+            Set<VolunteerSkill> filterSkills = parseSkills(skills.get());
             allActiveRequests = allActiveRequests.stream()
-                    .filter(request -> hasMatchingSkills(volunteer.getSkills(), parseSkills(skills.get())))
+                    .filter(request -> hasMatchingSkills(request.getRequiredSkills(), filterSkills))
                     .collect(Collectors.toList());
         }
 
         // Apply availability filter if provided
-        if (availability.isPresent()) {
+        if (availability.isPresent() && !availability.get().isEmpty()) {
+            Set<AvailabilityDay> filterAvailability = parseAvailability(availability.get());
             allActiveRequests = allActiveRequests.stream()
-                    .filter(request -> hasMatchingAvailability(volunteer.getAvailability(), parseAvailability(availability.get())))
+                    .filter(request -> hasMatchingAvailability(volunteer.getAvailability(), filterAvailability))
                     .collect(Collectors.toList());
         }
 
@@ -158,10 +159,9 @@ public class VolunteerService {
         return true; // Implement actual distance calculation logic
     }
 
-    private boolean hasMatchingSkills(Set<VolunteerSkill> volunteerSkills, Set<VolunteerSkill> requiredSkills) {
-        return !Collections.disjoint(volunteerSkills, requiredSkills); // Check for overlap between skills
+    private boolean hasMatchingSkills(Set<VolunteerSkill> requestSkills, Set<VolunteerSkill> filterSkills) {
+        return requestSkills.stream().anyMatch(filterSkills::contains);
     }
-
     private boolean hasMatchingAvailability(Set<AvailabilityDay> volunteerAvailability, Set<AvailabilityDay> requiredAvailability) {
         return !Collections.disjoint(volunteerAvailability, requiredAvailability); // Check availability overlap
     }

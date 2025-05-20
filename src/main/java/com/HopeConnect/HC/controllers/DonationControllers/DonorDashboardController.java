@@ -10,6 +10,7 @@ import com.HopeConnect.HC.services.DonationServices.DonationService;
 import com.HopeConnect.HC.services.UserServices.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class DonorDashboardController {
     private final UserService userService;
 
     @GetMapping("/summary")
+    @PreAuthorize("hasAnyAuthority('DONOR')")
     public ResponseEntity<DonorSummaryDTO> getDonorSummary(@AuthenticationPrincipal UserDetails userDetails) {
         User donor = userService.getUser(userDetails.getUsername());
         List<Donation> donations = donationService.getDonationsByDonor(donor);
@@ -61,8 +63,8 @@ public class DonorDashboardController {
         return ResponseEntity.ok(summary);
     }
 
-
     @GetMapping("/donations/updates")
+    @PreAuthorize("hasAnyAuthority('DONOR')")
     public ResponseEntity<List<DonationUpdate>> getAllDonationUpdatesForUser(@AuthenticationPrincipal UserDetails userDetails) {
         User donor = userService.getUser(userDetails.getUsername());
         List<Donation> donations = donationService.getDonationsByDonor(donor);
@@ -75,6 +77,7 @@ public class DonorDashboardController {
     }
 
     @GetMapping("/impact")
+    @PreAuthorize("hasAnyAuthority('DONOR')")
     public ResponseEntity<Map<String, Object>> getDonorImpact(@AuthenticationPrincipal UserDetails userDetails) {
         User donor = userService.getUser(userDetails.getUsername());
         List<Donation> donations = donationService.getDonationsByDonor(donor);

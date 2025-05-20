@@ -26,12 +26,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/HopeConnect/api/auth/**",
-                                "/HopeConnect/api/orphanages/verify/**",
-                                "/HopeConnect/api/emergency/alerts",  // added permitAll here
-                                "/HopeConnect/api/generate-report/**",
-                                "/emergency/success/**", // ✅ add this
-                                "/stripe/webhook"
+                                "/HopeConnect/api/auth/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

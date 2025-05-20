@@ -1,4 +1,5 @@
 package com.HopeConnect.HC.controllers.EmergencyControllers;
+
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,8 +28,8 @@ public class EmergencyController {
     private final EmergencyService emergencyService;
     private final UserService userService;
 
-    // For orphanage owners to create campaigns
     @PostMapping("/campaigns")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ORPHANAGE_OWNER')")
     public ResponseEntity<EmergencyCampaignResponseDTO> createCampaign(
             @RequestBody EmergencyCampaign campaign,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -39,6 +40,7 @@ public class EmergencyController {
     }
 
     @GetMapping("/campaigns")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'DONOR', 'SPONSOR', 'VOLUNTEER', 'ORPHANAGE_OWNER')")
     public ResponseEntity<List<EmergencyCampaignResponseDTO>> getActiveCampaigns() {
         List<EmergencyCampaign> campaigns = emergencyService.getActiveCampaigns();
         List<EmergencyCampaignResponseDTO> response = campaigns.stream()
@@ -48,6 +50,7 @@ public class EmergencyController {
     }
 
     @PostMapping("/campaigns/{campaignId}/donate")
+    @PreAuthorize("hasAnyAuthority('DONOR', 'SPONSOR')")
     public ResponseEntity<EmergencyDonationResponseDTO> makeDonation(
             @PathVariable Long campaignId,
             @RequestParam Double amount,
@@ -60,9 +63,8 @@ public class EmergencyController {
         return ResponseEntity.ok(response);
     }
 
-
-    // For orphanage owners to see their campaigns
     @GetMapping("/my-campaigns")
+    @PreAuthorize("hasAnyAuthority('ORPHANAGE_OWNER')")
     public ResponseEntity<List<EmergencyCampaignResponseDTO>> getOrphanageCampaigns(
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUser(userDetails.getUsername());
@@ -74,6 +76,7 @@ public class EmergencyController {
     }
 
     @PostMapping("/alerts")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<String> sendEmergencyAlert(
             @RequestBody Map<String, String> payload,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -92,10 +95,9 @@ public class EmergencyController {
     }
 
     @PostMapping("/campaigns/check-expired")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<String> manuallyCheckExpiredCampaigns() {
         emergencyService.checkExpiredCampaigns();
         return ResponseEntity.ok("Expired campaigns checked and processed.");
     }
-
-
 }

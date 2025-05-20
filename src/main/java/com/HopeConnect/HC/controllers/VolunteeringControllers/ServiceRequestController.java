@@ -7,7 +7,6 @@ import com.HopeConnect.HC.models.OrphanManagement.Orphanage;
 import com.HopeConnect.HC.models.User.User;
 import com.HopeConnect.HC.models.Volunteering.ApplicationStatus;
 import com.HopeConnect.HC.models.Volunteering.ServiceRequest;
-import com.HopeConnect.HC.models.Volunteering.Volunteer;
 import com.HopeConnect.HC.models.Volunteering.VolunteerApplication;
 import com.HopeConnect.HC.services.OrphanManagementServices.OrphanageService;
 import com.HopeConnect.HC.services.VolunteeringServices.VolunteerService;
@@ -16,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +25,6 @@ import java.util.stream.Collectors;
 public class ServiceRequestController {
     private final VolunteerService volunteerService;
     private final OrphanageService orphanageService;
-
 
     @PostMapping
     public ServiceRequest createServiceRequest(
@@ -54,7 +51,9 @@ public class ServiceRequestController {
         Orphanage orphanage = orphanageService.getOrphanageByUser(user);
         List<ServiceRequest> requests = volunteerService.getRequestsByOrphanage(orphanage);
 
-        return requests.stream().map(this::mapToResponseDTO).toList();
+        return requests.stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     private ServiceRequestResponseDTO mapToResponseDTO(ServiceRequest request) {
@@ -73,14 +72,12 @@ public class ServiceRequestController {
         return dto;
     }
 
-
     @GetMapping("/{requestId}/applications")
     public List<VolunteerApplication> getApplicationsForRequest(
             @AuthenticationPrincipal User user,
             @PathVariable Long requestId) {
 
         ServiceRequest request = volunteerService.getServiceRequestById(requestId);
-
         Orphanage orphanage = orphanageService.getOrphanageByUser(user);
 
         if (!request.getOrphanage().equals(orphanage)) {
@@ -89,6 +86,7 @@ public class ServiceRequestController {
 
         return volunteerService.getApplicationsForRequest(request);
     }
+
     @PostMapping("/applications/{applicationId}/process")
     public VolunteerApplicationResponseDTO processApplication(
             @AuthenticationPrincipal User user,
@@ -106,7 +104,6 @@ public class ServiceRequestController {
 
         return mapToResponseDTO(updatedApplication);
     }
-
 
     private VolunteerApplicationResponseDTO mapToResponseDTO(VolunteerApplication application) {
         VolunteerApplicationResponseDTO dto = new VolunteerApplicationResponseDTO();
@@ -139,6 +136,4 @@ public class ServiceRequestController {
 
         return dto;
     }
-
-
 }

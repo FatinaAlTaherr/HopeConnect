@@ -13,6 +13,7 @@ import com.HopeConnect.HC.services.OrphanManagementServices.OrphanageService;
 import com.HopeConnect.HC.services.UserServices.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,9 @@ public class OrphanageDashboardController {
     private final DonationService donationService;
     private final OrphanageService orphanageService;
     private final UserService userService;
+
     @GetMapping("/summary")
+    @PreAuthorize("hasAnyAuthority('ORPHANAGE_OWNER')")
     public ResponseEntity<Map<String, Object>> getOrphanageSummary(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUser(userDetails.getUsername());
         Orphanage orphanage = orphanageService.getOrphanageByUser(user);
@@ -58,8 +61,8 @@ public class OrphanageDashboardController {
         ));
     }
 
-
     @GetMapping("/donations/category")
+    @PreAuthorize("hasAnyAuthority('ORPHANAGE_OWNER')")
     public ResponseEntity<Map<DonationCategory, Double>> getDonationsByCategory(
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.getUser(userDetails.getUsername());
@@ -77,6 +80,7 @@ public class OrphanageDashboardController {
     }
 
     @PostMapping("/donations/{donationId}/updates")
+    @PreAuthorize("hasAnyAuthority('ORPHANAGE_OWNER')")
     public ResponseEntity<DonationUpdateResponseDTO> addDonationUpdate(
             @PathVariable Long donationId,
             @RequestBody DonationUpdate update,
@@ -99,5 +103,4 @@ public class OrphanageDashboardController {
                 savedUpdate.getImageUrl()
         ));
     }
-
 }

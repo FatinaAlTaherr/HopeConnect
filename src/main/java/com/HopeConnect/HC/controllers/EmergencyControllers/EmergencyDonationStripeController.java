@@ -13,6 +13,7 @@ import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -29,10 +30,10 @@ public class EmergencyDonationStripeController {
     private final EmergencyDonationRepository emergencyDonationRepository;
     private final UserRepository userRepository;
 
-    // In-memory map to store sessionId -> donorEmail (for demo only)
     private final Map<String, String> sessionEmailMap = new ConcurrentHashMap<>();
 
     @PostMapping("/checkout")
+    @PreAuthorize("hasAnyAuthority('DONOR', 'SPONSOR')")
     public ResponseEntity<StripeResponse> createStripeSession(@RequestBody EmergencyDonationRequest request) {
         StripeResponse response = stripeService.createDonationSession(request);
 
@@ -46,19 +47,11 @@ public class EmergencyDonationStripeController {
     }
 
     @GetMapping("/success")
+    @PreAuthorize("hasAnyAuthority('DONOR', 'SPONSOR')")
     public ResponseEntity<String> donationSuccess(@RequestParam("session_id") String sessionId) {
         try {
             Session session = Session.retrieve(sessionId);
 
-            System.out.println("=== Stripe Session Details ===");
-            System.out.println("Session ID: " + session.getId());
-            System.out.println("Customer Email: " + session.getCustomerEmail());
-            System.out.println("Amount Total: " + session.getAmountTotal());
-            System.out.println("Currency: " + session.getCurrency());
-            System.out.println("Metadata: " + session.getMetadata());
-            System.out.println("===============================");
-
-            // Get donor email from stored map instead of session metadata
             String donorEmail = sessionEmailMap.get(sessionId);
 
             if (donorEmail == null || donorEmail.isEmpty()) {
@@ -69,9 +62,6 @@ public class EmergencyDonationStripeController {
             User donor = userRepository.findByEmail(donorEmail)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // You must have stored campaignId in the request or session metadata,
-            // but since it's missing in your code snippet,
-            // assume you add it to metadata or request and fetch it here:
             String campaignIdStr = session.getMetadata().get("campaignId");
             if (campaignIdStr == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -82,10 +72,8 @@ public class EmergencyDonationStripeController {
             EmergencyCampaign campaign = emergencyCampaignRepository.findById(campaignId)
                     .orElseThrow(() -> new RuntimeException("Campaign not found"));
 
-            // Amount is in smallest currency unit (e.g. cents), convert to double
             double amountDonated = session.getAmountTotal() / 100.0;
 
-            // Create EmergencyDonation entity and save
             EmergencyDonation donation = EmergencyDonation.builder()
                     .donor(donor)
                     .campaign(campaign)
@@ -96,7 +84,6 @@ public class EmergencyDonationStripeController {
 
             emergencyDonationRepository.save(donation);
 
-            // Update campaign currentAmount
             if (campaign.getCurrentAmount() == null) {
                 campaign.setCurrentAmount(0.0);
             }
@@ -113,6 +100,7 @@ public class EmergencyDonationStripeController {
     }
 
     @GetMapping("/cancel")
+    @PreAuthorize("hasAnyAuthority('DONOR', 'SPONSOR')")
     public String donationCancelled() {
         return "Donation cancelled.";
     }

@@ -10,7 +10,7 @@ import com.HopeConnect.HC.repositories.DonationRepositories.DonationRepository;
 import com.HopeConnect.HC.repositories.DonationRepositories.DonationUpdateRepository;
 import com.HopeConnect.HC.repositories.DonationRepositories.ReviewRepository;
 import com.HopeConnect.HC.services.EmailSenderService;
-import com.HopeConnect.HC.services.PaymentServices.PaymentService;
+import com.HopeConnect.HC.services.StripeServices.DonationPaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,31 +25,39 @@ public class DonationService {
     private final DonationUpdateRepository donationUpdateRepository;
     private final DeliveryTrackingRepository deliveryTrackingRepository;
     private final ReviewRepository reviewRepository;
-    private final PaymentService paymentService;
+    private final DonationPaymentService paymentService;
     private final EmailSenderService emailSenderService;
 
     private final FeeConfig feeConfig;
+    public Donation saveDonation(Donation donation) {
+        return donationRepository.save(donation);
+    }
 
 
 
     public Donation createDonation(Donation donation) {
         if (donation.getType() == DonationType.MONEY) {
-            // Calculate and set fees
+            // Calculate and set fees for monetary donations
             double fee = calculateTransactionFee(donation.getAmount());
             donation.setTransactionFee(fee);
-            donation.setNetAmount(donation.getAmount() - fee);
+            donation.setNetAmount(donation.getAmount() - fee); // Subtract fee from amount for money donations
+        } else {
+            // Apply fixed fee for non-money donations
+            Double nonMoneyDonationFixedFee= 2.0;
+            donation.setTransactionFee(nonMoneyDonationFixedFee);
+            donation.setAmount(0.0);
+            donation.setNetAmount(donation.getAmount() + nonMoneyDonationFixedFee);
+            donation.setAmount(0.0);
         }
 
         Donation savedDonation = donationRepository.save(donation);
 
         if (donation.getType() == DonationType.MONEY) {
             try {
-                // Use the gross amount for payment intent
-                String clientSecret = paymentService.createPaymentIntent(donation);
+                String clientSecret = String.valueOf(paymentService.createDonationSession(donation));
                 savedDonation.setPaymentIntent(clientSecret);
                 donationRepository.save(savedDonation);
             } catch (Exception e) {
-                // Handle payment exception
             }
         }
 
@@ -133,6 +141,39 @@ public class DonationService {
         return reviewRepository.findAverageRatingByOrphanage(orphanage);
     }
 
+
+    public Donation confirmDonationPayment(Long donationId, String paymentIntentId) {
+        try {
+            paymentService.confirmSuccessfulPayment(paymentIntentId);
+
+            Donation donation = donationRepository.findById(donationId)
+                    .orElseThrow(() -> new RuntimeException("Donation not found"));
+
+            donation.setStatus(DonationStatus.COMPLETED);
+            donation.setPaymentIntent(paymentIntentId);
+
+            sendOrphanageNotification(donation);
+            return donationRepository.save(donation);
+        } catch (Exception e) {
+            throw new RuntimeException("Payment confirmation failed: " + e.getMessage());
+        }
+    }
+
+    private void sendOrphanageNotification(Donation donation) {
+        String subject = "New Donation Received";
+        String body = "Dear " + donation.getOrphanage().getOwner().getUsername() + ",\n\n" +
+                "You have received a new donation of " + donation.getNetAmount() +
+                " from " + donation.getDonor().getUsername() + ".\n\n" +
+                "Donation details:\n" +
+                "Type: " + donation.getType() + "\n" +
+                "Category: " + donation.getCategory() + "\n" +
+                "Description: " + (donation.getDescription() != null ? donation.getDescription() : "None") + "\n\n" +
+                "Thank you for using HopeConnect!\n\n" +
+                "Best regards,\n" +
+                "HopeConnect Team";
+
+        emailSenderService.sendEmail(donation.getOrphanage().getEmail(), subject, body);
+    }
     // Helper methods
     private void sendDonationConfirmation(Donation donation) {
         String subject = "Donation Confirmation";
@@ -152,6 +193,8 @@ public class DonationService {
 
         emailSenderService.sendEmail(donation.getDonor().getEmail(), subject, body);
     }
+
+
 
     private String getCategoryImpact(DonationCategory category) {
         switch (category) {
