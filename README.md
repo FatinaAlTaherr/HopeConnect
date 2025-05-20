@@ -164,7 +164,6 @@ Make sure you have Maven installed. Run the following command to install the nec
 
 **Follow me:**  
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/FatinaAlTaherr?tab=repositories)  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=LinkedIn&logoColor=white)](https://linkedin.com/in/testtttt)
 
 
 
